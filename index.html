@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillTrade</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <img src="logo.png" alt="SkillTrade Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="index.html" style="color:#4da6ff;"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li><a href="post.html"><i class="fa-solid fa-plus"></i> Post Task</a></li>
+          <li><a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+          <li><a href="messages.html"><i class="fa-solid fa-comment"></i>Chats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Trade Skills. Grow Together.</h1>
+      <p>Connect with others to exchange knowledge and services.</p>
+    </div>
+  </section>
+
+  <section class="recent-tasks">
+    <div class="container">
+      <div class="tasks-header">
+        <h2>Recent Tasks</h2>
+        <p>Browse tasks that match your skills</p>
+        <div class="filter-options">
+          <select id="task-sort">
+            <option value="newest">Newest First</option>
+            <option value="deadline">Deadline (Soon First)</option>
+            <option value="tokens-high">Tokens (High to Low)</option>
+            <option value="tokens-low">Tokens (Low to High)</option>
+          </select>
+        </div>
+        <a href="post.html" class="post-task-btn">
+          <i class="fa-solid fa-plus"></i> Post Task
+        </a>
+      </div>
+
+      <div id="task-grid" class="task-grid">
+        <!-- Task cards will be loaded here dynamically -->
+        <div id="loading-tasks">
+          <p><i class="fa-solid fa-spinner fa-spin"></i> Loading tasks...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Task Detail Modal -->
+  <div id="task-modal" class="task-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="modal-header">
+        <h2 id="modal-task-title">Task Title</h2>
+      </div>
+      <div class="modal-task-meta">
+        <span id="modal-task-date"><i class="fa-solid fa-calendar-days"></i> Due Date</span>
+        <span id="modal-task-poster">Posted by User</span>
+      </div>
+      <div id="modal-task-payment" class="modal-task-payment">
+        Payment Info
+      </div>
+      <div id="modal-task-description">
+        <h3>Description</h3>
+        <p>Task description will appear here.</p>
+      </div>
+      <div class="modal-task-skills">
+        <h3>Skills Required</h3>
+        <div id="modal-task-skills" class="tags">
+          <!-- Skill tags will be inserted here -->
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-contact" id="modal-contact-btn">Contact me</button>
+        <button class="btn-cancel" id="modal-close-btn">Close</button>
+        <button class="btn-apply" id="modal-apply-btn">Apply for Task</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 SkillTrade. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Initialize Firebase with your config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4rWcnOVhEe25tLftQFI32oMUl4fSp7zk",
+      authDomain: "skilltrade-67ea2.firebaseapp.com",
+      projectId: "skilltrade-67ea2",
+      storageBucket: "skilltrade-67ea2.appspot.com",
+      messagingSenderId: "381930307884",
+      appId: "1:381930307884:web:99f0db9878cb472edd2c89",
+      measurementId: "G-PV0G2TPBRE"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const taskGrid = document.getElementById('task-grid');
+      const sortSelect = document.getElementById('task-sort');
+      let allTasks = [];
+
+      // Function to fetch tasks from Firebase
+      async function fetchTasks() {
+        try {
+          const taskSnapshot = await db.collection('tasks')
+            .orderBy('createdAt', 'desc')
+            .get();
+          
+          if (taskSnapshot.empty) {
+            taskGrid.innerHTML = '<p class="no-tasks">No tasks found. Be the first to post one!</p>';
+            return;
+          }
+
+          allTasks = [];
+          taskSnapshot.forEach(doc => {
+            const taskData = doc.data();
+            taskData.id = doc.id;
+            allTasks.push(taskData);
+          });
+
+          renderTasks(allTasks);
+        } catch (error) {
+          console.error('Error fetching tasks:', error);
+          taskGrid.innerHTML = '<p class="error-message">Error loading tasks. Please try again.</p>';
+        }
+      }
+
+      // Function to format date for display
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+      }
+
+      // Function to render task cards
+      function renderTasks(tasks) {
+        taskGrid.innerHTML = '';
+
+        tasks.forEach(task => {
+          // Extract user display name (first name + first letter of last name)
+          const displayName = task.userName || 'Anonymous User';
+
+          // Create task card element
+          const taskCard = document.createElement('div');
+          taskCard.className = 'task-card';
+          taskCard.dataset.taskId = task.id;
+          
+          // Check if this is the current user's task
+          const currentUser = firebase.auth().currentUser;
+          if (currentUser && task.uid === currentUser.uid) {
+            taskCard.className = 'task-card own-task';
+          }
+
+          // Format the skills as tags
+          const skillsArray = task.skills.split(',');
+          let skillTags = '';
+          skillsArray.forEach(skill => {
+            skillTags += `<span>${skill.trim()}</span>`;
+          });
+
+          // Determine task type (tokens or barter)
+          const taskType = task.barter 
+            ? `<span class="barter"><i class="fa-solid fa-handshake"></i> Barter: ${task.barterReturn}</span>`
+            : `<span class="token"><i class="fa-solid fa-sack-dollar"></i> ${task.tokens} Tokens</span>`;
+
+          // Format deadline
+          const deadlineDate = formatDate(task.deadline);
+
+          // Build the HTML for the task card
+          taskCard.innerHTML = `
+            <div class="task-header">
+              <h3>${task.title}</h3>
+              ${taskType}
+            </div>
+            <p>${task.description.substring(0, 120)}${task.description.length > 120 ? '...' : ''}</p>
+            <div class="tags">
+              ${skillTags}
+            </div>
+            <div class="task-meta">
+              <span><i class="fa-solid fa-calendar-days"></i> Due ${deadlineDate}</span>
+              <span>Posted by ${displayName}</span>
+            </div>
+            <button class="view-details" data-id="${task.id}">View Details</button>
+          `;
+
+          taskGrid.appendChild(taskCard);
+        });
+
+        // Add event listeners to view details buttons
+        document.querySelectorAll('.view-details').forEach(button => {
+          button.addEventListener('click', () => {
+            const taskId = button.getAttribute('data-id');
+            viewTaskDetails(taskId);
+          });
+        });
+      }
+
+      // Function to view task details
+      function viewTaskDetails(taskId) {
+        const task = allTasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        // Get modal elements
+        const modal = document.getElementById('task-modal');
+        const modalTitle = document.getElementById('modal-task-title');
+        const modalDate = document.getElementById('modal-task-date');
+        const modalPoster = document.getElementById('modal-task-poster');
+        const modalPayment = document.getElementById('modal-task-payment');
+        const modalDescription = document.getElementById('modal-task-description');
+        const modalSkills = document.getElementById('modal-task-skills');
+        const applyBtn = document.getElementById('modal-apply-btn');
+        
+        // Fill modal with task data
+        modalTitle.textContent = task.title;
+        modalDate.innerHTML = `<i class="fa-solid fa-calendar-days"></i> Due ${formatDate(task.deadline)}`;
+        modalPoster.textContent = `Posted by ${task.userName || 'Anonymous User'}`;
+        
+        // Set payment info
+        if (task.barter) {
+          modalPayment.className = 'modal-task-payment barter';
+          modalPayment.innerHTML = `<i class="fa-solid fa-handshake"></i> Barter: ${task.barterReturn}`;
+        } else {
+          modalPayment.className = 'modal-task-payment token';
+          modalPayment.innerHTML = `<i class="fa-solid fa-sack-dollar"></i> ${task.tokens} Tokens`;
+        }
+        
+        // Set description
+        modalDescription.innerHTML = `
+          <h3>Description</h3>
+          <p>${task.description}</p>
+        `;
+        
+        // Set skills
+        modalSkills.innerHTML = '';
+        const skillsArray = task.skills.split(',');
+        skillsArray.forEach(skill => {
+          const span = document.createElement('span');
+          span.textContent = skill.trim();
+          modalSkills.appendChild(span);
+        });
+        
+        // Check if current user is the task owner
+        // Get current user
+const currentUser = firebase.auth().currentUser;
+const contactBtn = document.getElementById("modal-contact-btn");
+
+// Show/hide buttons based on ownership
+if (currentUser && task.uid === currentUser.uid) {
+  // Task belongs to the current user
+  applyBtn.textContent = "Your Task";
+  applyBtn.disabled = true;
+  applyBtn.style.backgroundColor = "#cccccc";
+  applyBtn.style.cursor = "not-allowed";
+
+  // Hide the contact button
+  contactBtn.style.display = "none";
+} else {
+  // Task belongs to someone else
+  applyBtn.textContent = "Apply for Task";
+  applyBtn.disabled = false;
+  applyBtn.style.backgroundColor = "#4da6ff";
+  applyBtn.style.cursor = "pointer";
+
+  // Show the contact button
+  contactBtn.style.display = "inline-block";
+  contactBtn.onclick = () => {
+    // You can change this redirect to your chat interface
+    window.location.href = `chat.html?recipient=${task.uid}`;
+  };
+
+  applyBtn.onclick = () => {
+    applyForTask(task.id);
+  };
+}
+
+        
+        // Show the modal
+        modal.style.display = 'block';
+        
+        // Close modal when clicking on close button or outside the modal
+        document.getElementById('modal-close-btn').onclick = () => {
+          modal.style.display = 'none';
+        };
+        
+        document.querySelector('.close-modal').onclick = () => {
+          modal.style.display = 'none';
+        };
+        
+        window.onclick = (event) => {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        };
+      }
+
+      // Function to handle task application
+      function applyForTask(taskId) {
+        // Check if user is authenticated
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          alert('Please log in to apply for tasks');
+          return;
+        }
+        
+        // Get the task
+        const task = allTasks.find(t => t.id === taskId);
+        
+        // Check if user is the task owner
+        if (task.uid === user.uid) {
+          alert('You cannot apply to your own task');
+          return;
+        }
+        
+        // Here you would create the task application in Firestore
+        // For now, we'll just show a message
+        alert('Your application has been submitted. The task poster will be notified.');
+        
+        // Close the modal
+        document.getElementById('task-modal').style.display = 'none';
+      }
+
+      // Function to sort tasks
+      function sortTasks(sortBy) {
+        let sortedTasks = [...allTasks];
+
+        switch (sortBy) {
+          case 'newest':
+            // Already sorted by createdAt desc from Firebase query
+            break;
+          case 'deadline':
+            sortedTasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+            break;
+          case 'tokens-high':
+            sortedTasks.sort((a, b) => (b.tokens || 0) - (a.tokens || 0));
+            break;
+          case 'tokens-low':
+            sortedTasks.sort((a, b) => (a.tokens || 0) - (b.tokens || 0));
+            break;
+        }
+
+        renderTasks(sortedTasks);
+      }
+
+      // Sort select change handler
+      sortSelect.addEventListener('change', (e) => {
+        sortTasks(e.target.value);
+      });
+
+      // Function to get user display name by UID
+      async function getUserName(uid) {
+        try {
+          const userDoc = await db.collection('users').doc(uid).get();
+          if (userDoc.exists) {
+            const userData = userDoc.data();
+            return userData.displayName || 'User';
+          }
+          return 'User';
+        } catch (error) {
+          console.error('Error getting user data:', error);
+          return 'User';
+        }
+      }
+
+      // Fetch user info for each task (normally you'd batch this)
+      async function fetchTasksWithUserInfo() {
+        await fetchTasks();
+        
+        // For each task, fetch the user info
+        for (const task of allTasks) {
+          if (task.uid) {
+            task.userName = await getUserName(task.uid);
+          }
+        }
+        
+        // Re-render with user names
+        renderTasks(allTasks);
+      }
+
+      // Initialize by fetching tasks with user info
+      fetchTasksWithUserInfo();
+    });
+  </script>
+</body>
+</html>

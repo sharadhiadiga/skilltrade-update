@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard | SkillTrade</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script defer src="dashboard.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2e0fa229c.js" crossorigin="anonymous"></script>
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <img src="logo.png" alt="SkillTrade Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="index.html" ><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="profile.html" style="color:#4da6ff;"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li><a href="post.html"><i class="fa-solid fa-plus"></i> Post Task</a></li>
+          <li><a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+          <li><a href="messages.html"><i class="fa-solid fa-comment"></i>Chats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <h2 class="dashboard-title">My Dashboard</h2>
+    <div class="filters">
+      <button class="tab-btn active" data-tab="accepted">Tasks I Accepted</button>
+      <button class="tab-btn" data-tab="posted">Tasks I Posted</button>
+    </div>
+
+    <div class="task-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Posted By</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="accepted-tasks">
+          <tr>
+            <td>Design a Flyer for Campus Event</td>
+            <td>Sam Wilson</td>
+            <td><i class="fa fa-calendar-alt"></i> Apr 28, 2025</td>
+            <td><span class="status in-progress">In Progress</span></td>
+            <td>
+                <button class="icon-btn tick-btn" style="visibility: hidden;"><i class="fa fa-check"></i></button>
+                <button class="icon-btn"><i class="fa fa-eye"></i></button>
+                <button class="complete-btn">Mark Complete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>JavaScript Tutoring Session</td>
+            <td>Jordan Lee</td>
+            <td><i class="fa fa-calendar-alt"></i> May 5, 2025</td>
+            <td><span class="status in-progress">In Progress</span></td>
+            <td>
+                <button class="icon-btn tick-btn" style="visibility: hidden;"><i class="fa fa-check"></i></button>
+                <button class="icon-btn"><i class="fa fa-eye"></i></button>
+                <button class="complete-btn">Mark Complete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Resume Review</td>
+            <td>Casey Martin</td>
+            <td><i class="fa fa-calendar-alt"></i> Apr 15, 2025</td>
+            <td><span class="status in-progress">In Progress</span></td>
+            <td>
+                <button class="icon-btn tick-btn" style="visibility: hidden;"><i class="fa fa-check"></i></button>
+                <button class="icon-btn"><i class="fa fa-eye"></i></button>
+                <button class="complete-btn">Mark Complete</button>
+            </td>
+          </tr>
+        </tbody>
+        <tbody id="posted-tasks" style="display: none;">
+          <tr>
+            <td>Resume preview</td>
+            <td>You</td>
+            <td><i class="fa fa-calendar-alt"></i> Apr 15, 2025</td>
+            <td><span class="status in-progress">In Progress</span></td>
+            <td><button class="icon-btn"><i class="fa fa-eye"></i></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SkillTrade. All rights reserved.</p>
+  </footer>
+  
+      <script src="js/dashboard.js"></script>
+
+</body>
+</html>

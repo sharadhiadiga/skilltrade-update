@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillTrade - Post a New Task</title>
+  <link rel="stylesheet" href="css/post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <img src="logo.png" alt="SkillTrade Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="index.html"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li><a href="post.html"  style="color:#4da6ff;"><i class="fa-solid fa-plus"></i> Post Task</a></li>
+          <li><a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+          <li><a href="messages.html"><i class="fa-solid fa-comment"></i>Chats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="post-task-container">
+    <h1>Post a New Task</h1>
+    <p class="subtext">Share what you need help with</p>
+
+    <form id="taskForm" class="task-form">
+      <label for="title">Task Title</label>
+      <input type="text" id="title" required />
+
+      <label for="description">Description</label>
+      <textarea id="description" rows="4" required></textarea>
+
+      <label for="deadline">Deadline</label>
+      <input type="date" id="deadline" required />
+
+      <div class="barter-toggle">
+        <label class="toggle-label" for="barter">Barter instead of tokens</label>
+        <label class="switch">
+          <input type="checkbox" id="barter">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div id="tokens-group">
+        <label for="tokens">Tokens Offered</label>
+        <input type="number" id="tokens" min="0" value="5" />
+      </div>
+
+      <div id="return-group" style="display: none;">
+        <label for="barterReturn">What do you want in return?</label>
+        <input type="text" id="barterReturn" />
+      </div>
+
+      <label for="skills">Skills Required</label>
+      <input type="text" id="skills" required />
+
+      <button type="submit" class="post-btn">Post Task</button>
+    </form>
+  </main>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4rWcnOVhEe25tLftQFI32oMUl4fSp7zk",
+      authDomain: "skilltrade-67ea2.firebaseapp.com",
+      projectId: "skilltrade-67ea2",
+      storageBucket: "skilltrade-67ea2.appspot.com",
+      messagingSenderId: "381930307884",
+      appId: "1:381930307884:web:99f0db9878cb472edd2c89",
+      measurementId: "G-PV0G2TPBRE"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('taskForm');
+    const barterCheckbox = document.getElementById('barter');
+    const tokensGroup = document.getElementById('tokens-group');
+    const returnGroup = document.getElementById('return-group');
+
+    // Toggle display based on barter checkbox
+    barterCheckbox.addEventListener('change', () => {
+      if (barterCheckbox.checked) {
+        tokensGroup.style.display = 'none';
+        returnGroup.style.display = 'block';
+      } else {
+        tokensGroup.style.display = 'block';
+        returnGroup.style.display = 'none';
+      }
+    });
+
+    // Check if user is logged in
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please log in to post a task.");
+        return;
+      }
+
+      // Submit form handler
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const deadline = document.getElementById('deadline').value;
+        const skills = document.getElementById('skills').value.trim();
+        const barter = barterCheckbox.checked;
+        const tokens = barter ? 0 : parseInt(document.getElementById('tokens').value);
+        const barterReturn = barter ? document.getElementById('barterReturn').value.trim() : "";
+
+        // Basic validation
+        if (!title || !description || !deadline || !skills) {
+          alert('Please fill in all required fields.');
+          return;
+        }
+
+        try {
+          // Save to Firestore
+          await db.collection('tasks').add({
+            uid: user.uid,
+            title,
+            description,
+            deadline,
+            skills,
+            barter,
+            tokens,
+            barterReturn,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          alert('Task saved!');
+          form.reset();
+          tokensGroup.style.display = 'block';
+          returnGroup.style.display = 'none';
+        } catch (error) {
+          console.error('Error saving task:', error);
+          alert('Error saving task.');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

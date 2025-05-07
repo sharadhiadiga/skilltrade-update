@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillTrade - Wallet</title>
+  <link rel="stylesheet" href="css/wallet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <img src="logo.png" alt="SkillTrade Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="index.html" ><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li><a href="post.html"><i class="fa-solid fa-plus"></i> Post Task</a></li>
+          <li><a href="wallet.html" style="color:#4da6ff;"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+          <li><a href="messages.html"><i class="fa-solid fa-comment"></i>Chats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wallet-page">
+    <div class="container">
+      <h1>Token Wallet</h1>
+
+  
+      <!-- Second Set -->
+      <h2>Token Value Summary</h2>
+      <div class="wallet-cards">
+        <div class="card total-balance">
+          <p class="card-label"><i class="fa-solid fa-coins"></i> Total Balance</p>
+          <h2>10 Tokens</h2>
+          <span>≈ ₹110 available to spend</span>
+        </div>
+        <div class="card tokens-earned">
+          <p class="card-label"><i class="fa-solid fa-arrow-trend-up"></i> Tokens Earned</p>
+          <h2>18</h2>
+          <span>≈ ₹170 earned to date</span>
+        </div>
+        <div class="card tokens-spent">
+          <p class="card-label"><i class="fa-solid fa-arrow-trend-down"></i> Tokens Spent</p>
+          <h2>8</h2>
+          <span>≈ ₹60 spent to date</span>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <section class="transactions">
+        <h2>Transaction History</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apr 10, 2025</td>
+              <td>Payment for: Proofread Research Paper</td>
+              <td class="spent">Spent</td>
+              <td class="spent">30 Tokens</td>
+            </tr>
+            <tr>
+              <td>Apr 5, 2025</td>
+              <td>JavaScript Tutoring Session</td>
+              <td class="earned">+ Earned</td>
+              <td class="earned">+60 Tokens</td>
+            </tr>
+            <tr>
+              <td>Mar 28, 2025</td>
+              <td>Proofread Research Paper</td>
+              <td class="spent">Spent</td>
+              <td class="spent">30 Tokens</td>
+            </tr>
+            <tr>
+              <td>Mar 22, 2025</td>
+              <td>Website Design Review</td>
+              <td class="earned">+ Earned</td>
+              <td class="earned">+45 Tokens</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/wallet.js"></script>
+</body>
+</html>

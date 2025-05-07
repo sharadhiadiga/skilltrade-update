@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillTrade Messages</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f9f9f9;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  header {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    height: 40px;
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav li {
+    margin-left: 1.5rem;
+  }
+  
+  nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  nav a:hover {
+    color: #4da6ff;
+  }
+  
+  footer {
+    background-color: #f0f0f0;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto;
+  }
+  
+  /* Instagram-style messages list */
+  #messages-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 1rem auto;
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .messages-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .messages-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    flex-grow: 1;
+  }
+  
+  .search-container {
+    padding: 10px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 10;
+  }
+  
+  .search-box {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 8px 16px;
+  }
+  
+  .search-icon {
+    color: #8e8e8e;
+    margin-right: 8px;
+  }
+  
+  #search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  
+  .messages-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  .message-item {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .message-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #555;
+    font-size: 1.2rem;
+  }
+  
+  .message-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .username {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .message-time {
+    color: #8e8e8e;
+    font-size: 0.8rem;
+  }
+  
+  .message-preview {
+    color: #8e8e8e;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .unread {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4da6ff;
+    margin-left: 10px;
+  }
+  
+  .empty-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #8e8e8e;
+    text-align: center;
+    padding: 0 20px;
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ddd;
+  }
+  
+  /* Loading indicator */
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+  }
+  
+  .loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4da6ff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+<body>
+  <header>
+    <div class="container">
+      <img src="logo.png" alt="SkillTrade Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="index.html"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li><a href="post.html"><i class="fa-solid fa-plus"></i> Post Task</a></li>
+          <li><a href="wallet.html"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+          <li><a href="messages.html" style="color:#4da6ff;"><i class="fa-solid fa-comment"></i> Chats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div id="messages-container">
+    <div class="messages-header">
+      <div class="messages-title">Messages</div>
+    </div>
+    
+    <div class="search-container">
+      <div class="search-box">
+        <i class="fa-solid fa-search search-icon"></i>
+        <input type="text" id="search-input" placeholder="Search" oninput="filterMessages()">
+      </div>
+    </div>
+    
+    <ul class="messages-list" id="messages-list">
+      <!-- Loading indicator -->
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+      </div>
+      <!-- Messages will be populated here -->
+    </ul>
+    
+    <div class="empty-messages" id="empty-messages" style="display: none;">
+      <i class="fa-solid fa-comment-slash empty-icon"></i>
+      <h3>No Messages</h3>
+      <p>Connect with other users to start chatting</p>
+    </div>
+  </div>
+
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+   const firebaseConfig = {
+    apiKey: "AIzaSyC4rWcnOVhEe25tLftQFI32oMUl4fSp7zk",
+    authDomain: "skilltrade-67ea2.firebaseapp.com",
+    projectId: "skilltrade-67ea2",
+    storageBucket: "skilltrade-67ea2.appspot.com",
+    messagingSenderId: "381930307884",
+    appId: "1:381930307884:web:99f0db9878cb472edd2c89",
+    measurementId: "G-PV0G2TPBRE"
+  };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <script>
+    const messagesList = document.getElementById("messages-list");
+    const emptyMessages = document.getElementById("empty-messages");
+    const searchInput = document.getElementById("search-input");
+    const loadingElement = document.getElementById("loading");
+    
+    let currentUser = null;
+    let conversationData = [];
+    let messageListeners = [];
+
+    function getInitials(name) {
+      if (!name) return "?";
+      
+      // If it's an email address, get first letter before @
+      if (name.includes('@')) {
+        const parts = name.split('@');
+        return parts[0].charAt(0).toUpperCase();
+      }
+      
+      // Otherwise, get first letter of name
+      return name.charAt(0).toUpperCase();
+    }
+
+    function formatTime(timestamp) {
+      if (!timestamp) return "";
+      
+      const date = timestamp.toDate();
+      const now = new Date();
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        // Today - show time
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (diffDays === 1) {
+        // Yesterday
+        return 'Yesterday';
+      } else if (diffDays < 7) {
+        // This week - show day name
+        return date.toLocaleDateString([], { weekday: 'short' });
+      } else {
+        // Older - show date
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      }
+    }
+
+    function createMessageItem(conversation) {
+      const { userId, userEmail, nickname, lastMessage, timestamp, unread } = conversation;
+      
+      const li = document.createElement("li");
+      li.className = "message-item";
+      li.onclick = () => {
+        window.location.href = `chat.html?recipient=${userId}`;
+      };
+      
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = getInitials(nickname || userEmail);
+      
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "message-content";
+      
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "message-header";
+      
+      const username = document.createElement("div");
+      username.className = "username";
+      username.textContent = nickname || userEmail;
+      
+      const time = document.createElement("div");
+      time.className = "message-time";
+      time.textContent = formatTime(timestamp);
+      
+      headerDiv.appendChild(username);
+      headerDiv.appendChild(time);
+      
+      const preview = document.createElement("div");
+      preview.className = "message-preview";
+      preview.textContent = lastMessage || "No messages yet";
+      
+      contentDiv.appendChild(headerDiv);
+      contentDiv.appendChild(preview);
+      
+      li.appendChild(avatar);
+      li.appendChild(contentDiv);
+      
+      if (unread) {
+        const unreadDot = document.createElement("div");
+        unreadDot.className = "unread";
+        li.appendChild(unreadDot);
+      }
+      
+      return li;
+    }
+
+    function filterMessages() {
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      const filteredData = conversationData.filter(convo => {
+        const displayName = convo.nickname || convo.userEmail;
+        return displayName.toLowerCase().includes(searchTerm);
+      });
+      
+      renderMessages(filteredData);
+    }
+
+    function renderMessages(data) {
+      messagesList.innerHTML = "";
+      loadingElement.style.display = "none";
+      
+      if (data.length === 0) {
+        emptyMessages.style.display = "flex";
+        return;
+      }
+      
+      emptyMessages.style.display = "none";
+      
+      data.forEach(conversation => {
+        const messageItem = createMessageItem(conversation);
+        messagesList.appendChild(messageItem);
+      });
+    }
+
+    async function loadConversations() {
+      try {
+        loadingElement.style.display = "flex";
+        
+        // First, let's check the conversations collection
+        // This is a new approach that will store conversation metadata
+        const conversationsSnapshot = await db.collection("conversations")
+          .where("participants", "array-contains", currentUser.uid)
+          .get();
+        
+        const conversations = [];
+        
+        // Process conversations if they exist
+        if (!conversationsSnapshot.empty) {
+          for (const doc of conversationsSnapshot.docs) {
+            const data = doc.data();
+            
+            // Find the other user in the conversation
+            const otherUserId = data.participants.find(id => id !== currentUser.uid);
+            if (!otherUserId) continue;
+            
+            // Try to get the last message
+            let lastMessageData = data.lastMessage || {};
+            
+            conversations.push({
+              userId: otherUserId,
+              userEmail: data.participantEmails?.[otherUserId] || "Unknown User",
+              lastMessage: lastMessageData.text || "No messages yet",
+              timestamp: lastMessageData.timestamp || null,
+              unread: lastMessageData.senderId !== currentUser.uid && !lastMessageData.read
+            });
+          }
+        }
+        
+        // If no conversations found in the new structure, fall back to scanning messages
+        if (conversations.length === 0) {
+          console.log("No conversations found, scanning messages...");
+          
+          // Get all messages where current user is sender or receiver
+          const sentMessagesQuery = db.collection("messages")
+            .where("senderId", "==", currentUser.uid)
+            .orderBy("timestamp", "desc");
+            
+          const receivedMessagesQuery = db.collection("messages")
+            .where("receiverId", "==", currentUser.uid)
+            .orderBy("timestamp", "desc");
+          
+          const [sentSnapshot, receivedSnapshot] = await Promise.all([
+            sentMessagesQuery.get(),
+            receivedMessagesQuery.get()
+          ]);
+          
+          // Combine and process messages to get conversation data
+          const userConversations = new Map();
+          
+          // Process sent messages
+          sentSnapshot.forEach(doc => {
+            const message = doc.data();
+            const otherUserId = message.receiverId;
+            
+            if (!userConversations.has(otherUserId)) {
+              userConversations.set(otherUserId, {
+                userId: otherUserId,
+                userEmail: message.receiverEmail || "Unknown",
+                lastMessage: message.text,
+                timestamp: message.timestamp,
+                unread: false
+              });
+            } else {
+              const existing = userConversations.get(otherUserId);
+              // Update if this message is newer
+              if (!existing.timestamp || 
+                  (message.timestamp && message.timestamp.toDate() > existing.timestamp.toDate())) {
+                existing.lastMessage = message.text;
+                existing.timestamp = message.timestamp;
+                userConversations.set(otherUserId, existing);
+              }
+            }
+          });
+          
+          // Process received messages
+          receivedSnapshot.forEach(doc => {
+            const message = doc.data();
+            const otherUserId = message.senderId;
+            
+            if (!userConversations.has(otherUserId)) {
+              userConversations.set(otherUserId, {
+                userId: otherUserId,
+                userEmail: message.senderEmail || message.name || "Unknown",
+                lastMessage: message.text,
+                timestamp: message.timestamp,
+                unread: !message.read // Mark as unread if not read
+              });
+            } else {
+              const existing = userConversations.get(otherUserId);
+              // Update if this message is newer
+              if (!existing.timestamp || 
+                  (message.timestamp && message.timestamp.toDate() > existing.timestamp.toDate())) {
+                existing.lastMessage = message.text;
+                existing.timestamp = message.timestamp;
+                existing.unread = !message.read;
+                userConversations.set(otherUserId, existing);
+              }
+            }
+          });
+          
+          // Convert Map to Array
+          for (const conversation of userConversations.values()) {
+            conversations.push(conversation);
+          }
+        }
+        
+        // Get user details and nicknames
+        const userPromises = conversations.map(async (conversation) => {
+          try {
+            // Get user info if not already set properly
+            if (conversation.userEmail === "Unknown" || conversation.userEmail === "Unknown User") {
+              const userDoc = await db.collection("users").doc(conversation.userId).get();
+              if (userDoc.exists) {
+                conversation.userEmail = userDoc.data().email || conversation.userEmail;
+              }
+            }
+            
+            // Check for nickname
+            const nicknameDoc = await db.collection("nicknames")
+              .doc(currentUser.uid + "_" + conversation.userId)
+              .get();
+              
+            if (nicknameDoc.exists && nicknameDoc.data().nickname) {
+              conversation.nickname = nicknameDoc.data().nickname;
+            }
+            
+            return conversation;
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            return conversation;
+          }
+        });
+        
+        // Wait for all promises to resolve
+        conversationData = await Promise.all(userPromises);
+        
+        // Sort by timestamp (newest first)
+        conversationData.sort((a, b) => {
+          if (!a.timestamp) return 1;
+          if (!b.timestamp) return -1;
+          return b.timestamp.toDate() - a.timestamp.toDate();
+        });
+        
+        console.log("Loaded conversations:", conversationData);
+        renderMessages(conversationData);
+        
+        // Set up real-time listeners for conversation updates
+        setupConversationListeners();
+      } catch (error) {
+        console.error("Error loading conversations:", error);
+        loadingElement.style.display = "none";
+        emptyMessages.style.display = "flex";
+      }
+    }
+    
+    // Set up real-time listeners for conversations
+    function setupConversationListeners() {
+      // Clear previous listeners
+      messageListeners.forEach(unsubscribe => unsubscribe());
+      messageListeners = [];
+      
+      // Listen for conversation updates
+      const conversationsListener = db.collection("conversations")
+        .where("participants", "array-contains", currentUser.uid)
+        .onSnapshot(snapshot => {
+          if (!snapshot.empty) {
+            console.log("Conversation update detected");
+            loadConversations();
+          }
+        });
+      
+      messageListeners.push(conversationsListener);
+      
+      // Also listen for direct message updates
+      const receivedMessagesListener = db.collection("messages")
+        .where("receiverId", "==", currentUser.uid)
+        .orderBy("timestamp", "desc")
+        .limit(20)
+        .onSnapshot(() => {
+          console.log("Received message update detected");
+          loadConversations();
+        });
+        
+      const sentMessagesListener = db.collection("messages")
+        .where("senderId", "==", currentUser.uid)
+        .orderBy("timestamp", "desc")
+        .limit(20)
+        .onSnapshot(() => {
+          console.log("Sent message update detected");
+          loadConversations();
+        });
+        
+      messageListeners.push(receivedMessagesListener);
+      messageListeners.push(sentMessagesListener);
+    }
+
+    // Create or update a conversation document when sending a message
+    async function createOrUpdateConversation(otherUserId, messageData) {
+      try {
+        // Create a unique conversation ID (sorted user IDs)
+        const participantIds = [currentUser.uid, otherUserId].sort();
+        const conversationId = participantIds.join('_');
+        
+        // Check if conversation exists
+        const conversationRef = db.collection("conversations").doc(conversationId);
+        const conversationDoc = await conversationRef.get();
+        
+        if (conversationDoc.exists) {
+          // Update existing conversation
+          await conversationRef.update({
+            lastMessage: messageData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          // Create new conversation document
+          const participantEmails = {};
+          participantEmails[currentUser.uid] = currentUser.email;
+            
+          // Try to get other user's email
+          try {
+            const otherUserDoc = await db.collection("users").doc(otherUserId).get();
+            if (otherUserDoc.exists) {
+              participantEmails[otherUserId] = otherUserDoc.data().email;
+            }
+          } catch (error) {
+            console.error("Error fetching other user's email:", error);
+          }
+            
+          await conversationRef.set({
+            participants: participantIds,
+            participantEmails: participantEmails,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastMessage: messageData
+          });
+        }
+      } catch (error) {
+        console.error("Error creating/updating conversation:", error);
+      }
+    }
+
+    // Helper function to add to window for chat.html to use
+    window.createOrUpdateConversation = createOrUpdateConversation;
+
+    // Clean up listeners when page is unloaded
+    window.addEventListener("beforeunload", () => {
+      messageListeners.forEach(unsubscribe => unsubscribe());
+    });
+
+    // Listen for auth state changes
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        console.log("User authenticated:", currentUser.email);
+        
+        // Load all user conversations
+        await loadConversations();
+      } else {
+        console.log("User not authenticated, redirecting to login");
+        window.location.href = "login.html";
+      }
+    });
+    // After successfully sending a message
+if (window.createOrUpdateConversation) {
+  window.createOrUpdateConversation(recipientId, {
+    text: messageText,
+    senderId: currentUser.uid,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    read: false
+  });
+}
+  </script>
+</body>
+</html>
